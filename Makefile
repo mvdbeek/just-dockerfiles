@@ -13,7 +13,7 @@ setup-venv: ## setup a development virutalenv in current directory
 	$(IN_VENV) pip install -r requirements.txt
 
 dump-description: setup-venv # Dump JSON description of recipe
-	$(IN_VENV) python dump_description.py $(RECIPE_NAME)
+	$(IN_VENV) python dump.py $(RECIPE_NAME) --description
 
 run-test: setup-venv # Run a test.
-	$(IN_VENV) py.test run_test.py -k $(RECIPE_NAME) --junit-xml $(REPORT)
+	$(IN_VENV) py.test run_test.py --timeout=$(shell $(IN_VENV) python dump.py $(RECIPE_NAME) --timeout) --verbose -k $(RECIPE_NAME) --junit-xml $(REPORT)

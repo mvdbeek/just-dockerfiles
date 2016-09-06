@@ -40,7 +40,7 @@ def _t_function(path):
     recipe_type = _recipe_type(path, recipe_config)
     if recipe_type == "dockerfile":
         _check_call(["docker", "build", "-t", docker_image_id, "."], cwd=path)
-        _check_call(["docker", "run", "-u", str(os.getuid()), "-v", "%s:%s" % (target_root, target_path), "--rm", "-t", docker_image_id], cwd=path)
+        _check_call(["docker", "run", "-v", "%s:%s" % (target_root, target_path), "--rm", "-t", docker_image_id], cwd=path)
     else:
         compose_args = []
         common_docker_compose_path = os.path.join(path, "common-docker-compose.yml")
