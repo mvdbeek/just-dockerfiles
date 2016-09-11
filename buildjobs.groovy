@@ -27,7 +27,7 @@ recipePath = new File(rootPath, 'recipes')
 testShellTemplate = engine.createTemplate('''
 if [ ! -d ${testGithubProject} ];
 then
-    git clone --recursive git://github.com/${testGithubOrg}/${testGithubProject}.git
+    git clone --recursive https://github.com/${testGithubOrg}/${testGithubProject}.git
 fi
 cd ${testGithubProject};
 git pull;
