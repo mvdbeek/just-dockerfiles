@@ -16,4 +16,4 @@ dump-description: setup-venv # Dump JSON description of recipe
 	$(IN_VENV) python dump.py $(RECIPE_NAME) --description
 
 run-test: setup-venv # Run a test.
-	$(IN_VENV) py.test run_test.py --timeout=$(shell $(IN_VENV) python dump.py $(RECIPE_NAME) --timeout) --verbose -k $(RECIPE_NAME) --junit-xml $(REPORT)
+	$(IN_VENV) py.test run_test.py --tb=native --timeout=$(shell $(IN_VENV) python dump.py $(RECIPE_NAME) --timeout) --verbose -k $(RECIPE_NAME) --junit-xml $(REPORT)
