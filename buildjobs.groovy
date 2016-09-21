@@ -1,4 +1,5 @@
 import groovy.json.JsonSlurper
+import org.yaml.snakeyaml.Yaml
 
 def env = System.getenv()
 
@@ -7,9 +8,10 @@ def rootPath = scriptPath.getParentFile().getParentFile()
 
 def jsonSlurper = new JsonSlurper()
 
-def justDockerfilesConfigPath = env.get("JUST_DOCKERFILES_CONFIG") ?: new File(rootPath, "just-dockerfiles.json").getAbsolutePath()
+def justDockerfilesConfigPath = env.get("JUST_DOCKERFILES_CONFIG") ?: new File(rootPath, "just-dockerfiles.yml").getAbsolutePath()
 def justDockerfilesConfigFile = new File(justDockerfilesConfigPath)
-def justDockerfilesConfig = jsonSlurper.parseText(justDockerfilesConfigFile.getText())
+Yaml yaml = new Yaml();
+def justDockerfilesConfig = yaml.load(justDockerfilesConfigFile.getText())
 
 def testGithubOrg = justDockerfilesConfig.testGithubOrg
 def testGithubProject = justDockerfilesConfig.testGithubProject
@@ -19,20 +21,13 @@ def targetGithubProject = justDockerfilesConfig.targetGithubProject
 def jobViewName = justDockerfilesConfig.jobViewName
 def baseJobName = justDockerfilesConfig.baseJobName
 
+def test_cmd = justDockerfilesConfig.test_cmd
 
 def engine = new groovy.text.SimpleTemplateEngine()
 
 recipePath = new File(rootPath, 'recipes')
 
-testShellTemplate = engine.createTemplate('''
-if [ ! -d ${testGithubProject} ];
-then
-    git clone --recursive https://github.com/${testGithubOrg}/${testGithubProject}.git
-fi
-cd ${testGithubProject};
-git pull;
-make run-test TARGET_ROOT=`pwd`/".." RECIPE_NAME="$testName" REPORT=`pwd`/../\\${BUILD_TAG}-report.xml
-''')
+testShellTemplate = engine.createTemplate(test_cmd)
 
 recipePath.eachFile {
     def recipeName = it.name
