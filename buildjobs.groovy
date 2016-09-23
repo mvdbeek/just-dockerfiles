@@ -21,6 +21,7 @@ def targetGithubProject = justDockerfilesConfig.targetGithubProject
 def jobViewName = justDockerfilesConfig.jobViewName
 def baseJobName = justDockerfilesConfig.baseJobName
 
+def env_vars = justDockerfilesConfig.env_vars
 def test_cmd = justDockerfilesConfig.test_cmd
 
 def engine = new groovy.text.SimpleTemplateEngine()
@@ -60,12 +61,39 @@ ${shellCommand}
     """
     job(jobName) {
         description(jenkinsDescription)
-        
+
         scm {
-            github "${targetGithubOrg}/${targetGithubProject}"
+            git {
+                remote {
+                        github "${targetGithubOrg}/${targetGithubProject}"
+                        refspec('+refs/pull/*:refs/remotes/origin/pr/*')
+                        credentials('mvdbeek-gh-key')
+                }
+                configure { gitscm ->
+                    gitscm / 'extensions' << 'hudson.plugins.git.extensions.impl.SubmoduleOption' {
+                        recursiveSubmodules(true)
+                    }
+                }
+                branch('${sha1}')
+            }
         }
         triggers {
-            cron("@daily")
+            githubPullRequest {
+                admins(['mvdbeek', 'drosofff'])
+                userWhitelist(['mvdbeek', 'drosofff'])
+                orgWhitelist('ARTbio')
+                triggerPhrase('OK to test')
+                onlyTriggerPhrase()
+                useGitHubHooks()
+                allowMembersOfWhitelistedOrgsAsAdmin()
+                }
+        }
+        wrappers {
+            credentialsBinding {
+                string('ANSIBLE_VAULT_PASSWORD', 'ansible_vault')
+                string('BIOBLEND_GALAXY_API_KEY', 'bioblend_api_key')
+                usernamePassword('IFB_USERNAME', 'IFB_PASSWORD', 'ifb_account')
+            }
         }
         steps {
             shell(shellCommand)
