@@ -67,7 +67,7 @@ ${shellCommand}
                 remote {
                         github "${targetGithubOrg}/${targetGithubProject}"
                         refspec('+refs/pull/*:refs/remotes/origin/pr/*')
-                        credentials('mvdbeek-gh-key')
+                        credentials('mvdbeek_gh_key')
                 }
                 configure { gitscm ->
                     gitscm / 'extensions' << 'hudson.plugins.git.extensions.impl.SubmoduleOption' {
